@@ -7,12 +7,7 @@ import java.util.stream.Collectors;
 public class VectorClock {
     private final Map<String, Integer> clock;
 
-    public enum ComparisonResult {
-        BEFORE, // this happens before other
-        AFTER, // this happens after other
-        CONCURRENT, // this and other are concurrent
-        EQUAL // this and other are identical
-    }
+
 
 
     public VectorClock() {
@@ -98,3 +93,4 @@ public class VectorClock {
 
 
 }
+
