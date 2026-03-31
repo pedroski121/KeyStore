@@ -7,9 +7,6 @@ import java.util.stream.Collectors;
 public class VectorClock {
     private final Map<String, Integer> clock;
 
-
-
-
     public VectorClock() {
         this.clock = new ConcurrentHashMap<>();
     }
@@ -80,7 +77,7 @@ public class VectorClock {
     }
 
     public Map<String, Integer> getClock() {
-        return new ConcurrentHashMap<>();
+        return new ConcurrentHashMap<>(clock);
     }
 
     @Override

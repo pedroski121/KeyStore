@@ -1,7 +1,6 @@
 package com.base.kvstore;
 
 import java.util.Optional;
-
 public interface KVStore {
 
     /**
@@ -13,5 +12,6 @@ public interface KVStore {
      */
     Optional<VersionedValue> get(String key, Context context);
 
+    
     VersionedValue put(String key, byte[] value, Context context);
 }
