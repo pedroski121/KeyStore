@@ -120,6 +120,66 @@ public class ConsistentHashRing {
     }
 
     /**
+     * Get the primary node for a key (first in preference list)
+     */
+    public NodeInfo getNode(String key){
+        List<NodeInfo> preferenceList = getPreferenceList(key, 1);
+        return preferenceList.isEmpty() ? null : preferenceList.get(0);
+    }
+
+    /**
+     * Returns all physical nodes in the ring
+     */
+    public Set<NodeInfo> getAllNodes() {
+        lock.readLock().lock();
+        try {
+            Set<NodeInfo> nodes = new HashSet<>();
+            for(VirtualNode vNode : ring.values()){
+                nodes.add(vNode.getPhysicalNode());
+            }
+            return nodes;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Get the total number of virtual nodes in the ring
+     */
+    public int getVirtualNodeCount() {
+        lock.readLock().lock();
+        try {
+            return ring.size();
+        } finally {
+             lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Returns the virtual nodes in order (for debugging)
+     */
+    public List<VirtualNode> getOrderedVirtualNodes() {
+        lock.readLock().lock();
+        try {
+            return new ArrayList<>(ring.values());
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Gets the distribution of keys across nodes for testing. This checks if data is been load balanced across nodes
+     */
+    public Map<NodeInfo, Integer> getDistribution(List<String> keys) {
+        Map<NodeInfo, Integer> distribution = new HashMap<>();
+        for(String key:keys) {
+            NodeInfo node = getNode(key);
+            distribution.merge(node, 1, Integer::sum);
+        }
+        return distribution;
+    }
+
+    /**
      * Hashes a string using the configured algorithm(MD5 or SHA-1)
      * Returns a 64-bit hash value (0 to 2^64 - 1)
      */
