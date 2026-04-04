@@ -69,6 +69,57 @@ public class ConsistentHashRing {
     }
 
     /**
+     * Returns N successor nodes clockwise from the hash of the key
+     * @Param key the key to lookup
+     * @Param n number of successor nodes to return
+     * @return list of N unique physical nodes in clockwise order
+     */
+    public List<NodeInfo> getPreferenceList(String key, int n) {
+        lock.readLock().lock();
+
+        try {
+            if(ring.isEmpty() || n <= 0){
+                return Collections.emptyList();
+            }
+
+            List<NodeInfo> preferenceList = new ArrayList<>();
+
+            Set<NodeInfo> seen = new HashSet<>();
+
+            long hash = hash(key);
+
+            // Get the tail map from the hash position
+            SortedMap<Long, VirtualNode> tailMap = ring.tailMap(hash);
+
+            // Iterate through the ring clockwise
+            for(VirtualNode vNode: tailMap.values()) {
+                NodeInfo physicalNode = vNode.getPhysicalNode();
+                if(seen.add(physicalNode)) {
+                    preferenceList.add(physicalNode);
+                    if(preferenceList.size() == n){
+                        return preferenceList;
+                    }
+                }
+            }
+
+            // Wrap around to the beginning of the ring
+            for(VirtualNode vNode: ring.values()){
+                NodeInfo physicalNode = vNode.getPhysicalNode();
+                if(seen.add(physicalNode)) {
+                    preferenceList.add(physicalNode);
+                    if(preferenceList.size() == n){
+                        return preferenceList;
+                    }
+                }
+            }
+            return preferenceList;
+
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
      * Hashes a string using the configured algorithm(MD5 or SHA-1)
      * Returns a 64-bit hash value (0 to 2^64 - 1)
      */
